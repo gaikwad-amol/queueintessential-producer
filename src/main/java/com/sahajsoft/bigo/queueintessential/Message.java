@@ -1,12 +1,16 @@
 package com.sahajsoft.bigo.queueintessential;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+@Slf4j
 public class Message {
   private String content;
 
@@ -14,14 +18,22 @@ public class Message {
     this.content = content;
   }
 
-  public static Message createMessage(File file) {
+  public static Optional<Message> createMessage(File file) {
+    if (file == null || !file.exists() || file.isHidden()) {
+      return Optional.empty();
+    }
     StringBuilder contentBuilder = new StringBuilder();
     try (Stream<String> stream = Files.lines(Paths.get(file.getAbsolutePath()), StandardCharsets.UTF_8)) {
-      stream.forEach(s -> contentBuilder.append(s));
+      stream.forEach(contentBuilder::append);
+      return Optional.of(new Message(contentBuilder.toString()));
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Error occurred while creating message for file - " + file.getAbsolutePath(), e);
     }
-    return new Message(contentBuilder.toString());
+    return Optional.empty();
+  }
+
+  public boolean hasContent() {
+    return content != null && !content.isEmpty();
   }
 
   String getContent() {

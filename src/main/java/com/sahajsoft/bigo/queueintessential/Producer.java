@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Optional;
 
 @Service
 public class Producer {
@@ -14,13 +15,13 @@ public class Producer {
     if (!folder.exists()) {
       throw new RuntimeException("Folder does not exist!");
     }
-    Message message;
+    Optional<Message> message;
 
     File[] listOfFiles = folder.listFiles(file -> !file.isHidden());
     if (listOfFiles != null && listOfFiles.length != 0) {
       for (File file : listOfFiles) {
         message = Message.createMessage(file);
-        message.send();
+        message.ifPresent(Message::send);
         file.delete();
       }
     }
@@ -40,7 +41,7 @@ public class Producer {
         System.out.println("New incoming file::Event kind::" + event.kind() + " Filename:: " + filename);
         File file = new File(filename);
         message = Message.createMessage(file);
-        message.send();
+        message.ifPresent(Message::send);
         file.delete();
       }
       key.reset();
