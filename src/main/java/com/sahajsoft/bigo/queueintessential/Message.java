@@ -40,7 +40,10 @@ public class Message {
     return content;
   }
 
-  public void send() {
-    System.out.println("message - " + content);
+  public void send(Client client) throws IOException {
+    log.info("sending message - " + content);
+    String response = client.sendMessage(content);
+    log.info("response - " + response);
+
   }
 }
