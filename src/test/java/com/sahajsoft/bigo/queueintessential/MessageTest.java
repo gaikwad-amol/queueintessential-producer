@@ -1,6 +1,6 @@
 package com.sahajsoft.bigo.queueintessential;
 
-import com.sahajsoft.bigo.queueintessential.producer.Message;
+import com.sahajsoft.bigo.queueintessential.message.Message;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

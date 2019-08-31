@@ -1,6 +1,8 @@
 package com.sahajsoft.bigo.queueintessential;
 
+import com.sahajsoft.bigo.queueintessential.broker.BrokerClient;
 import com.sahajsoft.bigo.queueintessential.config.ProducerProperties;
+import com.sahajsoft.bigo.queueintessential.producer.Producer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
