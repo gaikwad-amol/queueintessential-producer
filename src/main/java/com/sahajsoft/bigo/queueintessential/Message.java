@@ -40,9 +40,9 @@ public class Message {
     return content;
   }
 
-  public void send(Client client) throws IOException {
+  public void send(BrokerClient brokerClient) throws IOException {
     log.info("sending message - " + content);
-    String response = client.sendMessage(content);
+    String response = brokerClient.sendMessage(content);
     log.info("response - " + response);
 
   }

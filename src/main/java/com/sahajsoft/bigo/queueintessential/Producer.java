@@ -1,68 +1,72 @@
 package com.sahajsoft.bigo.queueintessential;
 
+import com.sahajsoft.bigo.queueintessential.config.ProducerProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
 import java.util.Optional;
 
 @Service
 @Slf4j
 public class Producer {
 
+  private BrokerClient brokerClient;
+  private ProducerProperties producerProperties;
+
   @Autowired
-  private Client client;
+  public Producer(BrokerClient brokerClient, ProducerProperties producerProperties) {
+    this.brokerClient = brokerClient;
+    this.producerProperties = producerProperties;
+  }
 
-  public void start() throws IOException, InterruptedException {
-    client.startConnection("localhost", 8082);
-    File folder = new File("/Users/amolg/Documents/Big O/send");
-    if (!folder.exists()) {
-      throw new RuntimeException("Folder does not exist!");
-    }
+  public int sendMessages() {
+    startBrokerClientConnection();
+    File folder = getFolderWithFilesToSend();
+    return sendFiles(folder);
+  }
+
+  private int sendFiles(File folder) {
     Optional<Message> message;
-
+    int numberOfFilesSend = 0;
     File[] listOfFiles = folder.listFiles(file -> !file.isHidden());
     if (listOfFiles != null && listOfFiles.length != 0) {
+      log.info("Total number of files to be sent - " + listOfFiles.length);
       for (File file : listOfFiles) {
         message = Message.createMessage(file);
         if (message.isPresent()) {
-          message.get().send(client);
+          try {
+            message.get().send(brokerClient);
+            numberOfFilesSend++;
+          } catch (IOException e) {
+            log.error("Failed to send file with name - " + file.getName(), e);
+          }
         }
-        file.delete();
       }
+      log.info("Total number of files sent successfully - " + numberOfFilesSend);
+    } else {
+      log.info("No files present in the folder - " + folder.getAbsolutePath());
     }
-
-    WatchService watchService
-        = FileSystems.getDefault().newWatchService();
-
-    Path path = Paths.get(folder.getAbsolutePath());
-    path.register(
-        watchService,
-        StandardWatchEventKinds.ENTRY_CREATE);
-
-    WatchKey key;
-    while ((key = watchService.take()) != null) {
-      for (WatchEvent<?> event : key.pollEvents()) {
-        String filename = "/Users/amolg/Documents/Big O/send/" + event.context();
-        log.info("New incoming file::Event kind::" + event.kind() + " Filename:: " + filename);
-        File file = new File(filename);
-        message = Message.createMessage(file);
-        if (message.isPresent()) {
-          message.get().send(client);
-        }
-        file.delete();
-      }
-      key.reset();
-    }
+    return numberOfFilesSend;
   }
 
-  @PreDestroy
-  public void cleanUp() throws Exception {
-    client.stopConnection();
+  private File getFolderWithFilesToSend() {
+    File folder = producerProperties.getFileFolderLocation();
+    if (!folder.exists()) {
+      throw new RuntimeException("Folder does not exist!");
+    }
+    return folder;
+  }
+
+  private void startBrokerClientConnection() {
+    try {
+      brokerClient.startConnection(producerProperties.getBrokerIPAddress(), producerProperties.getBrokerSocketPort());
+    } catch (IOException e) {
+      log.error("Failed to connect the broker - ", e);
+      throw new RuntimeException("Could not connect to broker");
+    }
   }
 
 }

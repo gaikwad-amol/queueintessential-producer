@@ -2,6 +2,7 @@ package com.sahajsoft.bigo.queueintessential;
 
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,7 +10,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 @Component
-public class Client {
+public class BrokerClient {
 
   private Socket clientSocket;
   private PrintWriter out;
@@ -27,9 +28,14 @@ public class Client {
     return response;
   }
 
-  public void stopConnection() throws IOException {
+  private void stopConnection() throws IOException {
     in.close();
     out.close();
     clientSocket.close();
+  }
+
+  @PreDestroy
+  public void cleanUp() throws Exception {
+    stopConnection();
   }
 }
