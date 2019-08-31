@@ -1,4 +1,4 @@
-package com.sahajsoft.bigo.queueintessential;
+package com.sahajsoft.bigo.queueintessential.broker;
 
 import org.springframework.stereotype.Component;
 

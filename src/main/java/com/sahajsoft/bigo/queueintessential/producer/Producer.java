@@ -1,5 +1,6 @@
-package com.sahajsoft.bigo.queueintessential;
+package com.sahajsoft.bigo.queueintessential.producer;
 
+import com.sahajsoft.bigo.queueintessential.broker.BrokerClient;
 import com.sahajsoft.bigo.queueintessential.config.ProducerProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

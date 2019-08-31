@@ -1,5 +1,6 @@
-package com.sahajsoft.bigo.queueintessential;
+package com.sahajsoft.bigo.queueintessential.message;
 
+import com.sahajsoft.bigo.queueintessential.broker.BrokerClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
