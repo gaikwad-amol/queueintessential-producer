@@ -1,6 +1,6 @@
 package com.sahajsoft.bigo.queueintessential.config;
 
-import com.sahajsoft.bigo.queueintessential.Producer;
+import com.sahajsoft.bigo.queueintessential.producer.Producer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
