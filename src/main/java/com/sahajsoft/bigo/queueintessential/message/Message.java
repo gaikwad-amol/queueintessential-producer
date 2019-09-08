@@ -1,6 +1,7 @@
 package com.sahajsoft.bigo.queueintessential.message;
 
 import com.sahajsoft.bigo.queueintessential.broker.BrokerClient;
+import com.sahajsoft.bigo.queueintessential.broker.BrokerNIOClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -41,10 +42,7 @@ public class Message {
     return content;
   }
 
-  public void send(BrokerClient brokerClient) throws IOException {
-    log.info("sending message - " + content);
+  public void send(BrokerNIOClient brokerClient) throws IOException {
     String response = brokerClient.sendMessage(content);
-    log.info("response - " + response);
-
   }
 }

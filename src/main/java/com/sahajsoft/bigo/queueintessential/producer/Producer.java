@@ -1,6 +1,7 @@
 package com.sahajsoft.bigo.queueintessential.producer;
 
 import com.sahajsoft.bigo.queueintessential.broker.BrokerClient;
+import com.sahajsoft.bigo.queueintessential.broker.BrokerNIOClient;
 import com.sahajsoft.bigo.queueintessential.config.ProducerProperties;
 import com.sahajsoft.bigo.queueintessential.message.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +16,11 @@ import java.util.Optional;
 @Slf4j
 public class Producer {
 
-  private BrokerClient brokerClient;
+  private BrokerNIOClient brokerClient;
   private ProducerProperties producerProperties;
 
   @Autowired
-  public Producer(BrokerClient brokerClient, ProducerProperties producerProperties) {
+  public Producer(BrokerNIOClient brokerClient, ProducerProperties producerProperties) {
     this.brokerClient = brokerClient;
     this.producerProperties = producerProperties;
   }
@@ -36,6 +37,7 @@ public class Producer {
     File[] listOfFiles = folder.listFiles(file -> !file.isHidden());
     if (listOfFiles != null && listOfFiles.length != 0) {
       log.info("Total number of files to be sent - " + listOfFiles.length);
+      long start = System.currentTimeMillis();
       for (File file : listOfFiles) {
         message = Message.createMessage(file);
         if (message.isPresent()) {
@@ -47,7 +49,7 @@ public class Producer {
           }
         }
       }
-      log.info("Total number of files sent successfully - " + numberOfFilesSend);
+      log.info("Total number of files sent successfully - " + numberOfFilesSend + " " + (System.currentTimeMillis() - start));
     } else {
       log.info("No files present in the folder - " + folder.getAbsolutePath());
     }
