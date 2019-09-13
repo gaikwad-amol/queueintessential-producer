@@ -49,6 +49,12 @@ public class Producer {
           }
         }
       }
+      Message message1 = new Message();
+      try {
+        message1.send(brokerClient);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
       log.info("Total number of files sent successfully - " + numberOfFilesSend + " " + (System.currentTimeMillis() - start));
     } else {
       log.info("No files present in the folder - " + folder.getAbsolutePath());

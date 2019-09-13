@@ -20,6 +20,10 @@ public class Message {
     this.content = content;
   }
 
+  public Message() {
+    content = "LAST";
+  }
+
   public static Optional<Message> createMessage(File file) {
     if (file == null || !file.exists() || file.isHidden()) {
       return Optional.empty();
