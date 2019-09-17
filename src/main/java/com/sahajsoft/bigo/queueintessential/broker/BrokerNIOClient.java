@@ -14,6 +14,7 @@ import java.nio.channels.SocketChannel;
 public class BrokerNIOClient {
 
   private SocketChannel crunchifyClient;
+  private ByteBuffer buffer;
   //private int count;
 
   public void startConnection(String ip, int port) throws IOException {
@@ -27,7 +28,7 @@ public class BrokerNIOClient {
     //log.info("Message sent -" + message);
     //log.info("message sent count  - " + count);
     String newMessage = message + "<END>";
-    ByteBuffer buffer = ByteBuffer.wrap(newMessage.getBytes());
+    buffer = ByteBuffer.wrap(newMessage.getBytes());
     crunchifyClient.write(buffer);
     return null;
   }

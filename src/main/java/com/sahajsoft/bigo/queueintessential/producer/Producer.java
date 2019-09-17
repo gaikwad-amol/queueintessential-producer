@@ -27,18 +27,22 @@ public class Producer {
 
   public int sendMessages() {
     startBrokerClientConnection();
-    File folder = getFolderWithFilesToSend();
-    return sendFiles(folder);
+    long start = System.currentTimeMillis();
+    int numberOfFilesSend = sendFiles(getFolderWithFilesToSend());
+    log.info("Total number of files sent successfully - " + numberOfFilesSend + " " + (System.currentTimeMillis() - start));
+    return numberOfFilesSend;
   }
 
   private int sendFiles(File folder) {
     Optional<Message> message;
     int numberOfFilesSend = 0;
-    File[] listOfFiles = folder.listFiles(file -> !file.isHidden());
+    //File[] listOfFiles = folder.listFiles();
+    String[] listOfFiles = folder.list();
+    File file;
     if (listOfFiles != null && listOfFiles.length != 0) {
       log.info("Total number of files to be sent - " + listOfFiles.length);
-      long start = System.currentTimeMillis();
-      for (File file : listOfFiles) {
+      for (String filename : listOfFiles) {
+        file = new File(folder.getAbsolutePath() + "/" + filename);
         message = Message.createMessage(file);
         if (message.isPresent()) {
           try {
@@ -49,13 +53,13 @@ public class Producer {
           }
         }
       }
-      Message message1 = new Message();
+      Message endMessage = new Message();
       try {
-        message1.send(brokerClient);
+        endMessage.send(brokerClient);
       } catch (IOException e) {
         e.printStackTrace();
       }
-      log.info("Total number of files sent successfully - " + numberOfFilesSend + " " + (System.currentTimeMillis() - start));
+
     } else {
       log.info("No files present in the folder - " + folder.getAbsolutePath());
     }

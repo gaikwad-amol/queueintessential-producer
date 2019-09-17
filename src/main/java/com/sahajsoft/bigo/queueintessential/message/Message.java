@@ -25,7 +25,8 @@ public class Message {
   }
 
   public static Optional<Message> createMessage(File file) {
-    if (file == null || !file.exists() || file.isHidden()) {
+    if (file == null || !file.exists() || file.isHidden() || file.isDirectory()) {
+      log.error("file not found " + file.getAbsolutePath());
       return Optional.empty();
     }
     StringBuilder contentBuilder = new StringBuilder();

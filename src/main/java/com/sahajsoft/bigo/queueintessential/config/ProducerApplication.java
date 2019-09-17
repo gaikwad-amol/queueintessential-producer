@@ -21,11 +21,13 @@ public class ProducerApplication {
   }
 
   public static void main(String[] args) {
+      //start log
     ConfigurableApplicationContext applicationContext = SpringApplication.run(ProducerApplication.class, args);
     try {
       applicationContext.getBean(Producer.class).sendMessages();
     } catch (Exception e) {
       log.error("Error occurred while starting the producer,", e);
     }
+      //end log
   }
 }
