@@ -23,11 +23,23 @@ public class ProducerProperties {
     return new File(Objects.requireNonNull(environment.getProperty("producer.folder")));
   }
 
+  public String getFileFolderLocationString() {
+    return Objects.requireNonNull(environment.getProperty("producer.folder"));
+  }
+
   public String getBrokerIPAddress() {
     return environment.getProperty("broker.ipaddress");
   }
 
   public Integer getBrokerSocketPort() {
     return Integer.valueOf(Objects.requireNonNull(environment.getProperty("broker.socket.port")));
+  }
+
+  public Integer threads() {
+    return Integer.valueOf(Objects.requireNonNull(environment.getProperty("threads")));
+  }
+
+  public Integer getQueueCapacity() {
+    return Integer.valueOf(Objects.requireNonNull(environment.getProperty("queueCapacity")));
   }
 }

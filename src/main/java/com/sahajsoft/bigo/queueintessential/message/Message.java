@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -37,6 +38,19 @@ public class Message {
       log.error("Error occurred while creating message for file - " + file.getAbsolutePath(), e);
     }
     return Optional.empty();
+  }
+
+  public static Optional<Message> createMessageNew(Path path) {
+    if (/*path == null || !path.toFile().exists() || path.toFile().isHidden() || */path.toFile().isDirectory()) {
+      log.error("file not found " + path.toFile().getAbsolutePath());
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(new Message(new String(Files.readAllBytes(path))));
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+  return Optional.empty();
   }
 
   public boolean hasContent() {
