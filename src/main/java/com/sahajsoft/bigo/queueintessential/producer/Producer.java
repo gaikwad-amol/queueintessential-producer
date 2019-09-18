@@ -1,6 +1,5 @@
 package com.sahajsoft.bigo.queueintessential.producer;
 
-import com.sahajsoft.bigo.queueintessential.broker.BrokerClient;
 import com.sahajsoft.bigo.queueintessential.broker.BrokerNIOClient;
 import com.sahajsoft.bigo.queueintessential.config.ProducerProperties;
 import com.sahajsoft.bigo.queueintessential.message.Message;
@@ -15,6 +14,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -73,25 +74,35 @@ public class Producer {
   }
 
   private int sendFilesNew(String folder) {
-    Optional<Message> message;
-    int numberOfFilesSend = 0;
+    //Optional<Message> message;
+    AtomicInteger numberOfFilesSend = new AtomicInteger();
     Path dir = FileSystems.getDefault().getPath( folder);
     DirectoryStream<Path> stream = null;
-    //File file;
     try {
       stream = Files.newDirectoryStream( dir );
-      for (Path path : stream) {
-        //file = path.toFile();
-        message = Message.createMessageNew(path);
+      StreamSupport.stream(stream.spliterator(), true).forEach(path->{
+        Optional<Message> message = Message.createMessageNew(path);
         if (message.isPresent()) {
           try {
             message.get().send(brokerClient);
-            numberOfFilesSend++;
+            numberOfFilesSend.getAndIncrement();
           } catch (IOException e) {
             log.error("Failed to send file with name - " + path, e);
           }
         }
-      }
+        });
+//      for (Path path : stream) {
+//        //file = path.toFile();
+//        message = Message.createMessageNew(path);
+//        if (message.isPresent()) {
+//          try {
+//            message.get().send(brokerClient);
+//            numberOfFilesSend.getAndIncrement();
+//          } catch (IOException e) {
+//            log.error("Failed to send file with name - " + path, e);
+//          }
+//        }
+//      }
       Message endMessage = new Message();
       try {
         endMessage.send(brokerClient);
@@ -101,7 +112,7 @@ public class Producer {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return numberOfFilesSend;
+    return numberOfFilesSend.get();
   }
 
   private File getFolderWithFilesToSend() {

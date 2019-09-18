@@ -32,14 +32,7 @@ public class BrokerNIOClient {
     crunchifyClient = SocketChannel.open(crunchifyAddr);
     log.info("is connected - " + crunchifyClient.isConnected());
     queue = new LinkedBlockingDeque<>(producerProperties.getQueueCapacity());
-    Thread t = new Thread(() -> {
-      try {
-        processMessage();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    });
-    t.run();
+    processMessage();
   }
 
   public String sendMessage(String message) throws IOException {
@@ -83,6 +76,7 @@ public class BrokerNIOClient {
 
     @Override
     public void run() {
+      Thread.currentThread().setName("MessageWriter" + Math.random());
       while (true) {
         try {
           String message = queue.take();

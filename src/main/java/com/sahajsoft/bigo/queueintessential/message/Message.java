@@ -47,6 +47,7 @@ public class Message {
     }
     try {
       return Optional.of(new Message(new String(Files.readAllBytes(path))));
+
     } catch (IOException ex) {
       ex.printStackTrace();
     }
