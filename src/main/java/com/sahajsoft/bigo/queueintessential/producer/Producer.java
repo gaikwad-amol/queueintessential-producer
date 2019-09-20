@@ -14,8 +14,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -23,11 +25,14 @@ public class Producer {
 
   private BrokerNIOClient brokerClient;
   private ProducerProperties producerProperties;
+  private ExecutorService executorService;
+  private static int threadNumber = 0;
 
   @Autowired
   public Producer(BrokerNIOClient brokerClient, ProducerProperties producerProperties) {
     this.brokerClient = brokerClient;
     this.producerProperties = producerProperties;
+    executorService = Executors.newFixedThreadPool(producerProperties.threads(), new MyThreadFactory());
   }
 
   public int sendMessages() {
@@ -74,26 +79,14 @@ public class Producer {
   }
 
   private int sendFilesNew(String folder) {
-    //Optional<Message> message;
+    Optional<Message> message;
     AtomicInteger numberOfFilesSend = new AtomicInteger();
     Path dir = FileSystems.getDefault().getPath( folder);
     DirectoryStream<Path> stream = null;
     try {
       stream = Files.newDirectoryStream( dir );
-      StreamSupport.stream(stream.spliterator(), true).forEach(path->{
-        Optional<Message> message = Message.createMessageNew(path);
-        if (message.isPresent()) {
-          try {
-            message.get().send(brokerClient);
-            numberOfFilesSend.getAndIncrement();
-          } catch (IOException e) {
-            log.error("Failed to send file with name - " + path, e);
-          }
-        }
-        });
-//      for (Path path : stream) {
-//        //file = path.toFile();
-//        message = Message.createMessageNew(path);
+//      StreamSupport.stream(stream.spliterator(), true).forEach(path->{
+//        Optional<Message> message = Message.createMessageNew(path);
 //        if (message.isPresent()) {
 //          try {
 //            message.get().send(brokerClient);
@@ -102,7 +95,10 @@ public class Producer {
 //            log.error("Failed to send file with name - " + path, e);
 //          }
 //        }
-//      }
+//        });
+      for (Path path : stream) {
+        executorService.execute(new createAndSendMessage(numberOfFilesSend, path));
+      }
       Message endMessage = new Message();
       try {
         endMessage.send(brokerClient);
@@ -113,6 +109,19 @@ public class Producer {
       e.printStackTrace();
     }
     return numberOfFilesSend.get();
+  }
+
+  private void createAndSendMessage(AtomicInteger numberOfFilesSend, Path path) {
+    Optional<Message> message;
+    message = Message.createMessageNew(path);
+    if (message.isPresent()) {
+      try {
+        message.get().send(brokerClient);
+        numberOfFilesSend.getAndIncrement();
+      } catch (IOException e) {
+        log.error("Failed to send file with name - " + path, e);
+      }
+    }
   }
 
   private File getFolderWithFilesToSend() {
@@ -131,5 +140,31 @@ public class Producer {
       throw new RuntimeException("Could not connect to broker");
     }
   }
+
+  class createAndSendMessage implements Runnable {
+
+    private AtomicInteger numberOfFilesSend;
+    private Path path;
+
+    public createAndSendMessage(AtomicInteger numberOfFilesSend, Path path) {
+      this.numberOfFilesSend = numberOfFilesSend;
+      this.path = path;
+    }
+
+    @Override
+    public void run() {
+      createAndSendMessage(numberOfFilesSend, path);
+    }
+  }
+
+  class MyThreadFactory implements ThreadFactory {
+
+    public Thread newThread(Runnable r) {
+      return new Thread(r, "CreateAndSend" + threadNumber ++);
+    }
+  }
+
+
+
 
 }
