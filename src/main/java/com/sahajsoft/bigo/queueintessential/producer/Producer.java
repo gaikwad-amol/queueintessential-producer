@@ -1,6 +1,7 @@
 package com.sahajsoft.bigo.queueintessential.producer;
 
 import com.sahajsoft.bigo.queueintessential.config.ProducerProperties;
+import com.sahajsoft.bigo.queueintessential.config.Stats;
 import com.sahajsoft.bigo.queueintessential.message.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class Producer {
     log.info("Producer will start to read directory");
     int numberOfFilesSend = sendFilesAsMessagesToBroker(producerProperties.getFileFolderLocationString());
     log.info("Total number of files sent to broker successfully - " + numberOfFilesSend + " " + (System.currentTimeMillis() - start));
+    Stats.numberOfFilesToBeSend.set(numberOfFilesSend);
     return numberOfFilesSend;
   }
 

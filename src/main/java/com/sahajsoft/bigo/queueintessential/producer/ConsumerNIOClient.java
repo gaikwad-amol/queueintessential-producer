@@ -1,6 +1,7 @@
 package com.sahajsoft.bigo.queueintessential.producer;
 
 import com.sahajsoft.bigo.queueintessential.config.ProducerProperties;
+import com.sahajsoft.bigo.queueintessential.config.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -87,8 +88,10 @@ public class ConsumerNIOClient {
             ByteBuffer buffer = ByteBuffer.wrap(messageContent.toString().getBytes());
             try {
               socketChannel.write(buffer);
+              Stats.numberOfFilesSent.incrementAndGet();
             } catch (IOException e) {
               log.error("exception occurred while writing to socket for message " + messageContent, e);
+              Stats.numberOfFilesFailed.incrementAndGet();
             }
             if (LAST_MESSAGE.equals(message)) {
               log.info("Sent message as LAST");

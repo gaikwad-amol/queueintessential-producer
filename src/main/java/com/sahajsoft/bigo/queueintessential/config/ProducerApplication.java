@@ -33,6 +33,12 @@ public class ProducerApplication {
     return applicationContext.getBean(Broker.class).getNumberOfMessages().toString();
   }
 
+  @RequestMapping("/producer/stats")
+  String producerStats() {
+    return String.format("Stats - number of files to be send : {%d} , number of files sent : {%d} , number of files failed: {%d} ",
+        Stats.numberOfFilesToBeSend, Stats.numberOfFilesSent, Stats.numberOfFilesFailed);
+  }
+
   public static void main(String[] args) {
     applicationContext = SpringApplication.run(ProducerApplication.class, args);
 //    new Thread(() -> {
