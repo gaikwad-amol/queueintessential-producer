@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
-import java.io.File;
 import java.util.Objects;
 
 @Configuration
@@ -19,24 +18,16 @@ public class ProducerProperties {
     this.environment = environment;
   }
 
-  public File getFileFolderLocation() {
-    return new File(Objects.requireNonNull(environment.getProperty("producer.folder")));
-  }
-
   public String getFileFolderLocationString() {
     return Objects.requireNonNull(environment.getProperty("producer.folder"));
   }
 
-  public String getBrokerIPAddress() {
-    return environment.getProperty("broker.ipaddress");
+  public Integer writerThreads() {
+    return Integer.valueOf(Objects.requireNonNull(environment.getProperty("writer.threads")));
   }
 
-  public Integer getBrokerSocketPort() {
-    return Integer.valueOf(Objects.requireNonNull(environment.getProperty("broker.socket.port")));
-  }
-
-  public Integer threads() {
-    return Integer.valueOf(Objects.requireNonNull(environment.getProperty("threads")));
+  public Integer producerThreads() {
+    return Integer.valueOf(Objects.requireNonNull(environment.getProperty("producer.threads")));
   }
 
   public Integer getQueueCapacity() {
