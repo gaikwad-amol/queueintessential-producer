@@ -36,7 +36,7 @@ public class ProducerApplication {
   @RequestMapping("/producer/stats")
   String producerStats() {
     return String.format("Stats - number of files to be send : {%d} , number of files sent : {%d} , number of files failed: {%d} ",
-        Stats.numberOfFilesToBeSend, Stats.numberOfFilesSent, Stats.numberOfFilesFailed);
+        Stats.numberOfFilesToBeSend.get(), Stats.numberOfFilesSent.get(), Stats.numberOfFilesFailed.get());
   }
 
   public static void main(String[] args) {
